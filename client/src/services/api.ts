@@ -103,4 +103,64 @@ export const moderationApi = {
   rejectListing: (id: string, reason: string) => api.put(`/listings/admin/reject/${id}`, { reason }),
 };
 
+export interface Offer {
+  id: string;
+  listingId: string;
+  buyerOrgId: string;
+  quantity: number;
+  unitPrice: number;
+  message?: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'countered';
+  parentOfferId?: string;
+  expiresAt?: string;
+  createdAt: string;
+  listing?: Listing;
+  buyer?: { id: string; name: string; country?: string };
+  parent?: Offer;
+  order?: Order;
+}
+
+export interface Order {
+  id: string;
+  offerId: string;
+  sellerOrgId: string;
+  buyerOrgId: string;
+  status: string;
+  totalAmount: number;
+  platformFee: number;
+  netAmount: number;
+  createdAt: string;
+}
+
+export interface Contract {
+  id: string;
+  orderId: string;
+  contentHash: string;
+  pdfUrl?: string;
+  status: string;
+  createdAt: string;
+}
+
+export const offerApi = {
+  create: (data: { listingId: string; quantity: number; unitPrice: number; message?: string }) => api.post<Offer>('/offers', data),
+  getForBuyer: () => api.get<Offer[]>('/offers/buyer'),
+  getById: (id: string) => api.get<Offer>(`/offers/${id}`),
+  getForListing: (listingId: string) => api.get<Offer[]>(`/offers/listing/${listingId}`),
+  accept: (id: string) => api.put<{ offer: Offer; order: Order }>(`/offers/${id}/accept`, {}),
+  reject: (id: string) => api.put<Offer>(`/offers/${id}/reject`, {}),
+  counter: (id: string, data: { quantity?: number; unitPrice?: number; message?: string }) => api.post<Offer>(`/offers/${id}/counter`, data),
+};
+
+export const contractApi = {
+  create: (orderId: string) => api.post<Contract>('/contracts', { orderId }),
+  getById: (id: string) => api.get<Contract>(`/contracts/${id}`),
+  sign: (contractId: string) => api.post(`/contracts/${contractId}/sign`, {}),
+  confirmDelivery: (orderId: string) => api.post(`/contracts/order/${orderId}/delivery`, {}),
+};
+
+export const orderApi = {
+  getMyOrders: () => api.get<Order[]>('/orders/my'),
+  getById: (id: string) => api.get<Order>(`/orders/${id}`),
+};
+
 export default api;

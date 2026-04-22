@@ -9,6 +9,9 @@ import listingRoutes from './routes/listing.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import catalogRoutes from './routes/catalog.routes.js';
 import alertRoutes from './routes/alert.routes.js';
+import offerRoutes from './routes/offer.routes.js';
+import contractRoutes from './routes/contract.routes.js';
+import orderRoutes from './routes/order.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,6 +37,9 @@ app.use('/api/listings', listingRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/catalog', catalogRoutes);
 app.use('/api/alerts', alertRoutes);
+app.use('/api/offers', offerRoutes);
+app.use('/api/contracts', contractRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.use((err: Error, _req: Request, res: Response) => {
   console.error(err.stack);
