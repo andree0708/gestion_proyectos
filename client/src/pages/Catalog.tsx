@@ -3,6 +3,29 @@ import { Link } from 'react-router-dom';
 import { catalogApi, categoryApi } from '../services/api';
 import { Listing, Category } from '../types/listing';
 
+const categoryIcons: Record<string, string> = {
+  'Harinas y Subproductos de Trigo': 'M12 3v10m0 0l-4-4m4 4l4-4m-4 4V7m4 4l-4 4m4-4l4-4M3 21h18M3 10v11M3 3v7',
+  'Residuos de Frutas y Verduras': 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z',
+  'Subproductos Lácteos': 'M9 3v1h6v14a2 2 0 01-2 2H5a2 2 0 01-2-2V4h6zm0 3h6v2H9V6z',
+  'Grasas y Aceites Usados': 'M12 2c1 0 2 .5 2 1.5S13 5 12 5s-2-.5-2-1.5S11 2 12 2zm-1 7v10m-1-10v3m2-3v3m2-3v3m2-3v3',
+  'Envases y Embalajes de Alimentos': 'M9 3v1H4v2h1v13a2 2 0 002 2h5v-2H8V5h1V3H9zm4 3v2h2V6h-2zm0 4v2h2v-2h-2zm0 4v2h2v-2h-2z',
+  'Carnes y Subproductos Cárnicos': 'M12 3v1h-1v1h2v-2zm0 4h-1v1h-1v1h2v-2zm0 4h-1v1h-1v1h2v-2zm4-8h1v1h-1v-1zm0 4h1v1h-1v-1zm0 4h1v1h-1v-1z',
+  default: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z',
+};
+
+const categoryColors: Record<string, string> = {
+  'Harinas y Subproductos de Trigo': 'from-amber-400 to-orange-500',
+  'Residuos de Frutas y Verduras': 'from-green-400 to-emerald-500',
+  'Subproductos Lácteos': 'from-blue-400 to-cyan-500',
+  'Grasas y Aceites Usados': 'from-yellow-400 to-amber-600',
+  'Envases y Embalajes de Alimentos': 'from-slate-400 to-gray-600',
+  'Carnes y Subproductos Cárnicos': 'from-red-400 to-rose-600',
+  default: 'from-emerald-400 to-teal-500',
+};
+
+const getCategoryIcon = (name: string) => categoryIcons[name] || categoryIcons.default;
+const getCategoryColor = (name: string) => categoryColors[name] || categoryColors.default;
+
 export default function Catalog() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -56,26 +79,47 @@ export default function Catalog() {
       <header className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex justify-between items-center mb-6">
-            <Link to="/" className="text-2xl font-bold">SubPro Exchange</Link>
             <div className="flex items-center gap-3">
-              <Link to="/login" className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition font-medium">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.282m-.282 4.556c-.342.342-.556.77-.556 1.272v4.394c0 .502.214.93.556 1.272l4.414 4.414c.342.342.77.556 1.272.556h4.394c.502 0 .93-.214 1.272-.556l4.414-4.414c.342-.342.556-.77.556-1.272V9.828c0-.502-.214-.93-.556-1.272l-4.414-4.414c-.342-.342-.77-.556-1.272-.556H9.828c-.502 0-.93.214-1.272.556L5.142 9.828c-.342.342-.556.77-.556 1.272v4.394c0 .502.214.93.556 1.272" />
+                </svg>
+              </div>
+              <Link to="/" className="text-2xl font-bold">SubPro Exchange</Link>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link to="/login" className="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition font-medium">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
                 Iniciar Sesión
               </Link>
-              <Link to="/register" className="px-4 py-2 bg-white text-emerald-700 rounded-lg hover:bg-gray-100 transition font-medium">
+              <Link to="/register" className="flex items-center gap-2 px-4 py-2 bg-white text-emerald-700 rounded-lg hover:bg-gray-100 transition font-medium">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
                 Registrarse
               </Link>
             </div>
           </div>
           
           <form onSubmit={handleSearch} className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
             <input
               type="text"
               placeholder="Buscar subproductos industriales, materiales reciclables, residuos..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full px-6 py-4 text-lg rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-white/30 text-gray-800"
+              className="w-full pl-12 pr-32 py-4 text-lg rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-white/30 text-gray-800"
             />
-            <button type="submit" className="absolute right-2 top-2 bottom-2 px-6 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition font-medium">
+            <button type="submit" className="absolute right-2 top-2 bottom-2 px-6 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition font-medium flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
               Buscar
             </button>
           </form>
@@ -193,53 +237,59 @@ export default function Catalog() {
               <>
                 <p className="text-gray-500 mb-4">{pagination.total} subproductos disponibles</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {listings.map(listing => (
-                    <Link key={listing.id} to={`/catalog/${listing.id}`} className="card hover:shadow-xl transition-all hover:-translate-y-1 group">
-                      <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 overflow-hidden">
+                  {listings.map(listing => {
+                    const catName = listing.category?.name || '';
+                    const iconPath = getCategoryIcon(catName);
+                    const colorClass = getCategoryColor(catName);
+                    return (
+                    <Link key={listing.id} to={`/catalog/${listing.id}`} className="card hover:shadow-xl transition-all hover:-translate-y-1 group bg-white rounded-xl overflow-hidden">
+                      <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                         {listing.photos?.[0] ? (
-                          <img src={listing.photos[0]} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          <img src={listing.photos[0]} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${colorClass}`}>
+                            <svg className="w-16 h-16 text-white/80" fill="currentColor" viewBox="0 0 24 24">
+                              <path d={iconPath} />
                             </svg>
                           </div>
                         )}
+                        <div className="absolute top-2 right-2">
+                          <span className="px-2 py-1 bg-white/90 backdrop-blur text-xs font-medium text-gray-700 rounded-full shadow-sm">
+                            {listing.priceType === 'fixed' ? `$${listing.priceAmount?.toLocaleString('es-CO')}` : 'Negociar'}
+                          </span>
+                        </div>
                       </div>
                       
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold text-gray-800 group-hover:text-emerald-600 transition-colors line-clamp-2">
+                      <div className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`px-2 py-0.5 text-xs font-medium text-white rounded-full bg-gradient-to-r ${colorClass}`}>
+                            {listing.category?.name}
+                          </span>
+                        </div>
+                        
+                        <h3 className="font-semibold text-gray-800 group-hover:text-emerald-600 transition-colors line-clamp-2 mb-2">
                           {listing.title}
                         </h3>
-                      </div>
-                      
-                      <span className="inline-block px-2 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-full mb-3">
-                        {listing.category?.name}
-                      </span>
-                      
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">
-                          <span className="font-semibold text-gray-800">{listing.quantity}</span> {listing.unit}
-                        </span>
-                        {listing.priceType === 'fixed' && listing.priceAmount ? (
-                          <span className="font-bold text-emerald-600">
-                            ${listing.priceAmount.toLocaleString('es-CO')}
+                        
+                        <div className="flex items-center justify-between text-sm mb-3">
+                          <span className="text-gray-600">
+                            <span className="font-bold text-gray-800">{listing.quantity}</span> {listing.unit}
                           </span>
-                        ) : (
-                          <span className="text-gray-400">A negociar</span>
-                        )}
-                      </div>
-                      
-                      <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-500">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        {listing.organization?.name}
-                        <span className="text-gray-300">•</span>
-                        {listing.organization?.country}
+                        </div>
+                        
+                        <div className="pt-3 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-500">
+                          <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                          </div>
+                          <span className="font-medium text-gray-700 truncate">{listing.organization?.name}</span>
+                          <span className="text-gray-300">•</span>
+                          <span>{listing.organization?.country}</span>
+                        </div>
                       </div>
                     </Link>
-                  ))}
+                  )})}
                 </div>
 
                 {pagination.totalPages > 1 && (

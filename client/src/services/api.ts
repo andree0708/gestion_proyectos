@@ -5,6 +5,7 @@ import { Listing, CreateListingDto, Category } from '../types/listing';
 const api = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
+  timeout: 15000,
 });
 
 api.interceptors.request.use((config) => {
@@ -18,6 +19,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.log('API Error:', error.message, error.code);
+    if (error.code === 'ECONNABORTED') {
+      console.error('Request timeout');
+      throw new Error('Tiempo de espera agotado');
+    }
+    if (!error.response) {
+      console.error('No response - network error');
+      throw new Error('Error de conexión');
+    }
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -68,26 +78,54 @@ export const categoryApi = {
 };
 
 export const catalogApi = {
-  search: (params: {
-    search?: string;
-    categoryId?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    minQuantity?: number;
-    unit?: string;
-    country?: string;
-    page?: number;
-    limit?: number;
-  }) => api.get('/catalog/search', { params }),
+  search: (params: any) => api.get('/catalog/search', { params }),
   getMap: () => api.get('/catalog/map'),
   getCategories: () => api.get('/catalog/categories'),
 };
 
 export const alertApi = {
-  create: (data: { categoryId?: string; region?: string }) => api.post('/alerts', data),
+  create: (data: any) => api.post('/alerts', data),
   getAll: () => api.get('/alerts'),
   delete: (id: string) => api.delete(`/alerts/${id}`),
   toggle: (id: string) => api.put(`/alerts/${id}/toggle`),
+};
+
+export const offerApi = {
+  create: (data: any) => api.post('/offers', data),
+  getForBuyer: () => api.get('/offers/buyer'),
+  getById: (id: string) => api.get(`/offers/${id}`),
+  getForListing: (listingId: string) => api.get(`/offers/listing/${listingId}`),
+  accept: (id: string) => api.put(`/offers/${id}/accept`, {}),
+  reject: (id: string) => api.put(`/offers/${id}/reject`, {}),
+  counter: (id: string, data: any) => api.post(`/offers/${id}/counter`, data),
+};
+
+export const orderApi = {
+  getMyOrders: () => api.get('/orders/my'),
+  getById: (id: string) => api.get(`/orders/${id}`),
+};
+
+export const shipmentApi = {
+  getMy: () => api.get('/shipments/my'),
+  create: (orderId: string, data: any) => api.post(`/shipments/orders/${orderId}`, data),
+  updateStatus: (id: string, status: string, location?: string) => api.put(`/shipments/${id}/status`, { status, location }),
+};
+
+export const paymentApi = {
+  getMy: () => api.get('/payments/my'),
+  create: (orderId: string) => api.post(`/payments/orders/${orderId}`),
+  processPayment: (id: string, paymentMethodId: string) => api.post(`/payments/${id}/process`, { paymentMethodId }),
+  saveBankAccount: (data: any) => api.post('/payments/bank', data),
+  getBankAccount: () => api.get('/payments/bank'),
+};
+
+export const disputeApi = {
+  getMy: () => api.get('/disputes/my'),
+  getAll: () => api.get('/disputes/admin'),
+  getById: (id: string) => api.get(`/disputes/${id}`),
+  create: (orderId: string, data: any) => api.post(`/disputes/orders/${orderId}`, data),
+  addEvidence: (id: string, data: any) => api.post(`/disputes/${id}/evidence`, data),
+  resolve: (id: string, resolution: string) => api.post(`/disputes/${id}/resolve`, { resolution }),
 };
 
 export const kybApi = {
@@ -101,66 +139,6 @@ export const moderationApi = {
   getPendingListings: () => api.get('/listings/admin/pending'),
   approveListing: (id: string) => api.put(`/listings/admin/approve/${id}`),
   rejectListing: (id: string, reason: string) => api.put(`/listings/admin/reject/${id}`, { reason }),
-};
-
-export interface Offer {
-  id: string;
-  listingId: string;
-  buyerOrgId: string;
-  quantity: number;
-  unitPrice: number;
-  message?: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'countered';
-  parentOfferId?: string;
-  expiresAt?: string;
-  createdAt: string;
-  listing?: Listing;
-  buyer?: { id: string; name: string; country?: string };
-  parent?: Offer;
-  order?: Order;
-}
-
-export interface Order {
-  id: string;
-  offerId: string;
-  sellerOrgId: string;
-  buyerOrgId: string;
-  status: string;
-  totalAmount: number;
-  platformFee: number;
-  netAmount: number;
-  createdAt: string;
-}
-
-export interface Contract {
-  id: string;
-  orderId: string;
-  contentHash: string;
-  pdfUrl?: string;
-  status: string;
-  createdAt: string;
-}
-
-export const offerApi = {
-  create: (data: { listingId: string; quantity: number; unitPrice: number; message?: string }) => api.post<Offer>('/offers', data),
-  getForBuyer: () => api.get<Offer[]>('/offers/buyer'),
-  getById: (id: string) => api.get<Offer>(`/offers/${id}`),
-  getForListing: (listingId: string) => api.get<Offer[]>(`/offers/listing/${listingId}`),
-  accept: (id: string) => api.put<{ offer: Offer; order: Order }>(`/offers/${id}/accept`, {}),
-  reject: (id: string) => api.put<Offer>(`/offers/${id}/reject`, {}),
-  counter: (id: string, data: { quantity?: number; unitPrice?: number; message?: string }) => api.post<Offer>(`/offers/${id}/counter`, data),
-};
-
-export const contractApi = {
-  create: (orderId: string) => api.post<Contract>('/contracts', { orderId }),
-  getById: (id: string) => api.get<Contract>(`/contracts/${id}`),
-  sign: (contractId: string) => api.post(`/contracts/${contractId}/sign`, {}),
-  confirmDelivery: (orderId: string) => api.post(`/contracts/order/${orderId}/delivery`, {}),
-};
-
-export const orderApi = {
-  getMyOrders: () => api.get<Order[]>('/orders/my'),
-  getById: (id: string) => api.get<Order>(`/orders/${id}`),
 };
 
 export default api;

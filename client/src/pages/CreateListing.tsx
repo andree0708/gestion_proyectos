@@ -16,7 +16,7 @@ export default function CreateListing() {
     unit: 'toneladas',
     priceType: 'negotiate' as 'fixed' | 'negotiate',
     priceAmount: '',
-    attributes: '{}',
+    attributes: {} as Record<string, string>,
   });
   const [photos, setPhotos] = useState<string[]>([]);
 
@@ -37,7 +37,7 @@ export default function CreateListing() {
       const { data } = await listingApi.uploadPhotos(formData);
       setPhotos(prev => [...prev, ...data.urls]);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Error uploading photos');
+      console.error('Error uploading photos:', err);
     }
   };
 
@@ -51,8 +51,8 @@ export default function CreateListing() {
         ...form,
         quantity: parseFloat(form.quantity),
         priceAmount: form.priceType === 'fixed' ? parseFloat(form.priceAmount) : undefined,
-        attributes: JSON.parse(form.attributes),
-        photos,
+        attributes: Object.keys(form.attributes).length > 0 ? form.attributes : undefined,
+        photos: photos.length > 0 ? photos : undefined,
       };
       await listingApi.create(payload);
       navigate('/dashboard');
@@ -160,7 +160,7 @@ export default function CreateListing() {
                   />
                 </div>
               )}
-            </div>
+</div>
 
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Fotos</label>
@@ -180,15 +180,68 @@ export default function CreateListing() {
               )}
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Atributos JSON</label>
-              <textarea
-                value={form.attributes}
-                onChange={e => setForm({ ...form, attributes: e.target.value })}
-                className="w-full p-2 border rounded font-mono text-sm"
-                rows={3}
-                placeholder='{"humedad": 5, "granulometria": "mediana"}'
-              />
+            {/* Atributos Técnicos */}
+            <div className="card bg-slate-50 p-4 mb-4">
+              <h4 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Atributos Técnicos (opcional)
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Humedad (%)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={form.attributes.humedad || ''}
+                    onChange={e => setForm({ ...form, attributes: { ...form.attributes, humedad: e.target.value } })}
+                    className="w-full p-2 border rounded text-sm"
+                    placeholder="Ej: 5.5"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Fecha de elaboración</label>
+                  <input
+                    type="date"
+                    value={form.attributes.fechaElaboracion || ''}
+                    onChange={e => setForm({ ...form, attributes: { ...form.attributes, fechaElaboracion: e.target.value } })}
+                    className="w-full p-2 border rounded text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Caducidad</label>
+                  <input
+                    type="date"
+                    value={form.attributes.caducidad || ''}
+                    onChange={e => setForm({ ...form, attributes: { ...form.attributes, caducidad: e.target.value } })}
+                    className="w-full p-2 border rounded text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Origen</label>
+                  <select
+                    value={form.attributes.origen || ''}
+                    onChange={e => setForm({ ...form, attributes: { ...form.attributes, origen: e.target.value } })}
+                    className="w-full p-2 border rounded text-sm"
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="industrial">Industrial</option>
+                    <option value="comercial">Comercial</option>
+                    <option value="agricola">Agrícola</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-3">
+                <label className="block text-xs text-gray-500 mb-1">Notas adicionales</label>
+                <textarea
+                  value={form.attributes.notas || ''}
+                  onChange={e => setForm({ ...form, attributes: { ...form.attributes, notas: e.target.value } })}
+                  className="w-full p-2 border rounded text-sm"
+                  rows={2}
+                  placeholder="Información adicional relevante..."
+                />
+              </div>
             </div>
 
             <div className="flex gap-4">

@@ -55,7 +55,7 @@ export default function Register() {
         
         <div className="card">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Crear Cuenta</h2>
-          <p className="text-gray-500 mb-6">Registra tu empresa para comenzar</p>
+          <p className="text-gray-500 mb-6">Registra tu empresa para comenzar a vender o comprar subproductos</p>
           
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
@@ -65,26 +65,26 @@ export default function Register() {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="label">Nombre de la empresa *</label>
+              <label className="label">Nombre de la EMPRESA *</label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="input"
-                placeholder="ej: Acme Industrial S.A.S"
+                placeholder="ej: Acme Industrial SAS"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="label">NIT *</label>
+                <label className="label">NIT * (sin puntos)</label>
                 <input
                   type="text"
                   value={form.taxId}
                   onChange={(e) => setForm({ ...form, taxId: e.target.value })}
                   className="input"
-                  placeholder="900.123.456-1"
+                  placeholder="9001234561"
                   required
                 />
               </div>
@@ -116,32 +116,32 @@ export default function Register() {
                 </select>
               </div>
               <div>
-                <label className="label">Nombre completo *</label>
+                <label className="label">Tu nombre COMPLETO *</label>
                 <input
                   type="text"
                   value={form.fullName}
                   onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                   className="input"
-                  placeholder="Tu nombre"
+                  placeholder="Juan Perez"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="label">Email corporativo *</label>
+              <label className="label">Tu EMAIL *</label>
               <input
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="input"
-                placeholder="tu@empresa.com"
+                placeholder="juan@acme.com"
                 required
               />
             </div>
 
             <div>
-              <label className="label">Contraseña *</label>
+              <label className="label">Tu CONTRASEÑA *</label>
               <input
                 type="password"
                 value={form.password}

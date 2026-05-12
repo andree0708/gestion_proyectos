@@ -293,6 +293,55 @@ model Alert {
   @@map("alerts")
 }
 
+model Dispute {
+  id            String   @id @default(uuid())
+  orderId       String   @map("order_id")
+  openedByOrgId String   @map("opened_by_org_id")
+  reason        String
+  description   String
+  status        String   @default("open")
+  resolution    String?
+  resolvedAt    DateTime? @map("resolved_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  order      Order              @relation(fields: [orderId], references: [id])
+  evidences  DisputeEvidence[]
+
+  @@map("disputes")
+}
+
+model DisputeEvidence {
+  id              String   @id @default(uuid())
+  disputeId       String   @map("dispute_id")
+  uploadedByOrgId String   @map("uploaded_by_org_id")
+  type            String
+  description     String?
+  fileUrl         String?  @map("file_url")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  dispute Dispute @relation(fields: [disputeId], references: [id])
+
+  @@map("dispute_evidences")
+}
+
+model BankAccount {
+  id            String   @id @default(uuid())
+  orgId         String   @unique @map("org_id")
+  bankName      String   @map("bank_name")
+  accountType   String   @map("account_type")
+  accountNumber String   @map("account_number")
+  accountHolder String   @map("account_holder")
+  documentId    String?  @map("document_id")
+  verified      Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  @@map("bank_accounts")
+}
+
 model AuditLog {
   id           String   @id @default(uuid())
   userId       String?  @map("user_id")

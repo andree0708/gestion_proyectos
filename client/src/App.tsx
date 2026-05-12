@@ -6,6 +6,11 @@ import CreateListing from './pages/CreateListing';
 import ModerationPanel from './pages/ModerationPanel';
 import Catalog from './pages/Catalog';
 import ListingDetail from './pages/ListingDetail';
+import Offers from './pages/Offers';
+import Contracts from './pages/Contracts';
+import Orders from './pages/Orders';
+import Payments from './pages/Payments';
+import Disputes from './pages/Disputes';
 import { useAuthStore } from './hooks/useAuth';
 import { useEffect } from 'react';
 
@@ -53,6 +58,46 @@ function App() {
           element={
             <ProtectedRoute>
               <ModerationPanel />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/offers" 
+          element={
+            <ProtectedRoute>
+              <Offers />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/contracts" 
+          element={
+            <ProtectedRoute>
+              <Contracts />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/orders" 
+          element={
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/payments" 
+          element={
+            <ProtectedRoute>
+              <Payments />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/disputes" 
+          element={
+            <ProtectedRoute>
+              <Disputes />
             </ProtectedRoute>
           } 
         />

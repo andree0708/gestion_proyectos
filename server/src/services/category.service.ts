@@ -19,21 +19,30 @@ export const createCategory = async (data: { name: string; parentId?: string; le
 
 export const seedCategories = async () => {
   const existing = await prisma.category.count();
-  if (existing > 0) return;
+  if (existing > 0) {
+    return;
+  }
 
   const categories = [
-    { name: 'Residuos Metálicos', slug: 'residuos-metalicos', level: 1 },
-    { name: 'Residuos Plásticos', slug: 'residuos-plasticos', level: 1 },
-    { name: 'Residuos Orgánicos', slug: 'residuos-organicos', level: 1 },
-    { name: 'Residuos Electrónicos', slug: 'residuos-electronicos', level: 1 },
-    { name: 'Escombros y Materiales de Construcción', slug: 'escombros-construccion', level: 1 },
-    { name: 'Lodos y Residuos Líquidos', slug: 'lodos-residuos-liquidos', level: 1 },
-    { name: 'Chatarra de Hierro', slug: 'chatarra-hierro', level: 2, parent: 'residuos-metalicos' },
-    { name: 'Chatarra de Cobre', slug: 'chatarra-cobre', level: 2, parent: 'residuos-metalicos' },
-    { name: 'Chatarra de Aluminum', slug: 'chatarra-aluminio', level: 2, parent: 'residuos-metalicos' },
-    { name: 'PET Reciclable', slug: 'pet-reciclable', level: 2, parent: 'residuos-plasticos' },
-    { name: 'HDPE Reciclable', slug: 'hdpe-reciclable', level: 2, parent: 'residuos-plasticos' },
-    { name: 'Polipropileno', slug: 'polipropileno', level: 2, parent: 'residuos-plasticos' },
+    { name: 'Harinas y Subproductos de Trigo', slug: 'harinas-trigo', level: 1 },
+    { name: 'Residuos de Frutas y Verduras', slug: 'frutas-verduras', level: 1 },
+    { name: 'Subproductos Lácteos', slug: 'subproductos-lacteos', level: 1 },
+    { name: 'Grasas y Aceites Usados', slug: 'grasas-aceites', level: 1 },
+    { name: 'Envases y Embalajes', slug: 'envases-embalajes', level: 1 },
+    { name: 'Carnes y Subproductos Cárnicos', slug: 'carnes-subproductos', level: 1 },
+    { name: 'Salvado de Trigo', slug: 'salvado-trigo', level: 2, parent: 'harinas-trigo' },
+    { name: 'Harina de Maíz', slug: 'harina-maiz', level: 2, parent: 'harinas-trigo' },
+    { name: 'Cascarón de Arroz', slug: 'cascaron-arroz', level: 2, parent: 'harinas-trigo' },
+    { name: 'Pulpa de Fruta', slug: 'pulpa-fruta', level: 2, parent: 'frutas-verduras' },
+    { name: 'Residuos de Vegetales', slug: 'residuos-vegetales', level: 2, parent: 'frutas-verduras' },
+    { name: 'Suero de Leche', slug: 'suero-leche', level: 2, parent: 'subproductos-lacteos' },
+    { name: 'Requesón y Ricota', slug: 'requeson-ricota', level: 2, parent: 'subproductos-lacteos' },
+    { name: 'Grasa Animal', slug: 'grasa-animal', level: 2, parent: 'grasas-aceites' },
+    { name: 'Aceite de Frittura', slug: 'aceite-frittura', level: 2, parent: 'grasas-aceites' },
+    { name: 'Cartón para Alimentos', slug: 'carton-alimentos', level: 2, parent: 'envases-embalajes' },
+    { name: 'Plástico Alimentario', slug: 'plastico-alimentario', level: 2, parent: 'envases-embalajes' },
+    { name: 'Huesos y Cartílagos', slug: 'huesos-cartilagos', level: 2, parent: 'carnes-subproductos' },
+    { name: 'Sangre Seca', slug: 'sangre-seca', level: 2, parent: 'carnes-subproductos' },
   ];
 
   const parentMap = new Map<string, string>();

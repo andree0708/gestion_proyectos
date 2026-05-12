@@ -5,9 +5,7 @@ export const createContract = async (orderId: string) => {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
-      offer: { include: { listing: { include: { organization: true } }, buyer: true },
-      seller: { select: { name: true, taxId: true } },
-      buyer: { select: { name: true, taxId: true } },
+      offer: { include: { listing: true } },
     },
   });
 
@@ -31,7 +29,6 @@ export const createContract = async (orderId: string) => {
       contentHash,
       status: 'pending_signature',
     },
-    include: { order: true },
   });
 
   return contract;
@@ -40,7 +37,6 @@ export const createContract = async (orderId: string) => {
 export const signContract = async (contractId: string, signerId: string, signerOrgId: string) => {
   const contract = await prisma.contract.findUnique({
     where: { id: contractId },
-    include: { order: { include: { offer: true } },
   });
 
   if (!contract) {
@@ -72,24 +68,19 @@ export const signContract = async (contractId: string, signerId: string, signerO
     return prisma.contract.update({
       where: { id: contractId },
       data: { status: 'signed' },
-      include: { signatures: true },
     });
   }
 
-  return { ...contract, signaturesCount };
+  return { contract, signaturesCount };
 };
 
 export const getContract = async (contractId: string) => {
   return prisma.contract.findUnique({
     where: { id: contractId },
-    include: {
-      order: { include: { offer: { include: { listing: true } } },
-      signatures: true,
-    },
   });
 };
 
-export const confirmDelivery = async (orderId: string, buyerOrgId: string, evidence?: string) => {
+export const confirmDelivery = async (orderId: string, buyerOrgId: string) => {
   const order = await prisma.order.findFirst({
     where: { id: orderId, buyerOrgId, status: 'in_transit' },
   });

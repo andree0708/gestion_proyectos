@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { listingApi } from '../services/api';
+import { listingApi, offerApi } from '../services/api';
 import { Listing } from '../types/listing';
+import { useAuthStore } from '../hooks/useAuth';
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showOfferForm, setShowOfferForm] = useState(false);
+  const [offerData, setOfferData] = useState({ quantity: '', unitPrice: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const { isAuthenticated, organization } = useAuthStore();
 
   useEffect(() => {
     if (id) {
@@ -16,6 +22,30 @@ export default function ListingDetail() {
         .finally(() => setLoading(false));
     }
   }, [id]);
+
+  const handleSubmitOffer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id) return;
+    
+    setError('');
+    setSubmitting(true);
+    
+    try {
+      await offerApi.create({
+        listingId: id,
+        quantity: parseFloat(offerData.quantity),
+        unitPrice: parseFloat(offerData.unitPrice),
+        message: offerData.message || undefined,
+      });
+      alert('¡Oferta enviada correctamente!');
+      setShowOfferForm(false);
+      setOfferData({ quantity: '', unitPrice: '', message: '' });
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Error al enviar oferta');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) return <div className="p-8">Cargando...</div>;
   if (!listing) return <div className="p-8">Listado no encontrado</div>;
@@ -106,12 +136,85 @@ export default function ListingDetail() {
               </div>
 
               <div className="mt-6">
-                <Link
-                  to="/login"
-                  className="block text-center bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
-                >
-                  Iniciar sesión para enviar oferta
-                </Link>
+                {!isAuthenticated ? (
+                  <Link
+                    to="/login"
+                    className="block text-center bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
+                  >
+                    Iniciar sesión para enviar oferta
+                  </Link>
+                ) : listing.organization?.id === organization?.id ? (
+                  <div className="text-center bg-gray-100 text-gray-600 py-3 rounded-lg">
+                    Este es tu producto
+                  </div>
+                ) : showOfferForm ? (
+                  <form onSubmit={handleSubmitOffer} className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                    <h4 className="font-semibold text-gray-800 mb-3">Enviar oferta</h4>
+                    {error && (
+                      <div className="mb-3 p-2 bg-red-100 text-red-700 text-sm rounded">
+                        {error}
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Cantidad</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={offerData.quantity}
+                          onChange={e => setOfferData({ ...offerData, quantity: e.target.value })}
+                          className="w-full p-2 border rounded text-sm"
+                          placeholder={String(listing?.quantity || '')}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Precio unitario (COP)</label>
+                        <input
+                          type="number"
+                          value={offerData.unitPrice}
+                          onChange={e => setOfferData({ ...offerData, unitPrice: e.target.value })}
+                          className="w-full p-2 border rounded text-sm"
+                          placeholder="Precio por unidad"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <label className="block text-xs text-gray-600 mb-1">Mensaje (opcional)</label>
+                      <textarea
+                        value={offerData.message}
+                        onChange={e => setOfferData({ ...offerData, message: e.target.value })}
+                        className="w-full p-2 border rounded text-sm"
+                        rows={2}
+                        placeholder="Tu mensaje al vendedor..."
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="flex-1 bg-emerald-600 text-white py-2 rounded-lg hover:bg-emerald-700 disabled:opacity-50 text-sm font-medium"
+                      >
+                        {submitting ? 'Enviando...' : 'Enviar oferta'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowOfferForm(false)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <button
+                    onClick={() => setShowOfferForm(true)}
+                    className="block text-center bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 font-medium"
+                  >
+                    Hacer una oferta
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -14,13 +14,33 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    
+    console.log('Login: Starting with', email);
+    
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      setError('Tiempo de espera agotado. Intenta de nuevo.');
+      console.log('Login: Timeout');
+    }, 10000);
+    
     try {
+      console.log('Login: Calling auth store...');
       await login(email, password);
+      console.log('Login: Got response');
+      clearTimeout(timeoutId);
+      setLoading(false);
+      console.log('Login: Navigating to dashboard');
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Credenciales inválidas');
-    } finally {
+      console.log('Login: Error caught', err);
+      clearTimeout(timeoutId);
       setLoading(false);
+      let msg = 'Credenciales inválidas';
+      if (err) {
+        msg = err.response?.data?.error || err.data?.error || err.message || err.toString() || msg;
+      }
+      console.log('Login: Error message:', msg);
+      setError(msg);
     }
   };
 
@@ -61,7 +81,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="input"
-                placeholder="••••••••"
+                placeholder="********"
                 required
               />
             </div>
