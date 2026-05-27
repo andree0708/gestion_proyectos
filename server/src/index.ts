@@ -52,16 +52,6 @@ app.use('/api/disputes', disputeRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/analytics', analyticsRoutes);
-
-// Serve client build in production
-if (process.env.NODE_ENV === 'production') {
-  const clientDist = path.join(__dirname, '../../client/dist');
-  app.use(express.static(clientDist));
-  app.get('*', (_req: Request, res: Response) => {
-    res.sendFile(path.join(clientDist, 'index.html'));
-  });
-}
-
 app.use((err: Error, _req: Request, res: Response) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal server error' });

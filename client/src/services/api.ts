@@ -3,7 +3,7 @@ import { AuthResponse, LoginCredentials, RegisterData } from '../types/auth';
 import { Listing, CreateListingDto, Category } from '../types/listing';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
   timeout: 15000,
 });

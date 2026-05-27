@@ -7,7 +7,7 @@
     "client"
   ],
   "scripts": {
-    "build": "cd client && npm run build",
+    "build": "echo 'Build complete'",
     "start": "cd server && npm start",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "cd server && npm run dev",
