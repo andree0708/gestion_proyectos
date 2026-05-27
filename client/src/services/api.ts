@@ -83,15 +83,9 @@ export const catalogApi = {
   getCategories: () => api.get('/catalog/categories'),
 };
 
-export const alertApi = {
-  create: (data: any) => api.post('/alerts', data),
-  getAll: () => api.get('/alerts'),
-  delete: (id: string) => api.delete(`/alerts/${id}`),
-  toggle: (id: string) => api.put(`/alerts/${id}/toggle`),
-};
-
 export const offerApi = {
   create: (data: any) => api.post('/offers', data),
+  getForSeller: () => api.get('/offers/seller'),
   getForBuyer: () => api.get('/offers/buyer'),
   getById: (id: string) => api.get(`/offers/${id}`),
   getForListing: (listingId: string) => api.get(`/offers/listing/${listingId}`),
@@ -107,21 +101,52 @@ export const orderApi = {
 
 export const shipmentApi = {
   getMy: () => api.get('/shipments/my'),
+  getByOrder: (orderId: string) => api.get(`/shipments/orders/${orderId}`),
+  trackByCode: (trackingCode: string) => api.get(`/shipments/tracking/${trackingCode}`),
   create: (orderId: string, data: any) => api.post(`/shipments/orders/${orderId}`, data),
+  update: (id: string, data: any) => api.put(`/shipments/${id}`, data),
   updateStatus: (id: string, status: string, location?: string) => api.put(`/shipments/${id}/status`, { status, location }),
+  calculate: (data: { weightKg: number; volumeM3: number; distanceKm?: number }) =>
+    api.post('/shipments/calculate', data),
 };
 
 export const paymentApi = {
   getMy: () => api.get('/payments/my'),
   create: (orderId: string) => api.post(`/payments/orders/${orderId}`),
   processPayment: (id: string, paymentMethodId: string) => api.post(`/payments/${id}/process`, { paymentMethodId }),
+  getInvoice: (paymentId: string) => api.get(`/payments/invoices/${paymentId}`),
+  getInvoicePdf: (paymentId: string) => `/api/payments/invoices/${paymentId}/pdf`,
   saveBankAccount: (data: any) => api.post('/payments/bank', data),
   getBankAccount: () => api.get('/payments/bank'),
 };
 
+export const reviewApi = {
+  create: (orderId: string, data: { rating: number; comment?: string }) =>
+    api.post(`/reviews/orders/${orderId}`, data),
+  getForOrg: (orgId?: string) => api.get(`/reviews/org/${orgId || ''}`),
+};
+
+export const messageApi = {
+  getMy: () => api.get('/messages/my'),
+  getByOrder: (orderId: string) => api.get(`/messages/order/${orderId}`),
+  send: (conversationId: string, content: string) =>
+    api.post(`/messages/${conversationId}/messages`, { content }),
+};
+
+export const analyticsApi = {
+  getStats: () => api.get('/analytics/stats'),
+  exportCsv: () => api.get('/analytics/export/csv', { responseType: 'blob' }),
+  exportPdf: () => api.get('/analytics/export/pdf', { responseType: 'blob' }),
+};
+
+export const contractApi = {
+  sign: (contractId: string) => api.post(`/contracts/${contractId}/sign`, {}),
+  confirmDelivery: (orderId: string) => api.post(`/contracts/order/${orderId}/delivery`, {}),
+};
+
 export const disputeApi = {
   getMy: () => api.get('/disputes/my'),
-  getAll: () => api.get('/disputes/admin'),
+  getAll: (status?: string) => api.get('/disputes/admin', { params: status ? { status } : {} }),
   getById: (id: string) => api.get(`/disputes/${id}`),
   create: (orderId: string, data: any) => api.post(`/disputes/orders/${orderId}`, data),
   addEvidence: (id: string, data: any) => api.post(`/disputes/${id}/evidence`, data),

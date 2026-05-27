@@ -3,26 +3,22 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CreateListing from './pages/CreateListing';
-import ModerationPanel from './pages/ModerationPanel';
+import EditListing from './pages/EditListing';
 import Catalog from './pages/Catalog';
 import ListingDetail from './pages/ListingDetail';
-import Offers from './pages/Offers';
-import Contracts from './pages/Contracts';
 import Orders from './pages/Orders';
 import Payments from './pages/Payments';
-import Disputes from './pages/Disputes';
+import Offers from './pages/Offers';
+import Messages from './pages/Messages';
+import ModerationPanel from './pages/ModerationPanel';
 import { useAuthStore } from './hooks/useAuth';
 import { useEffect } from 'react';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore();
-  
   useEffect(() => {
-    if (!isLoading) {
-      useAuthStore.getState().checkAuth();
-    }
+    if (!isLoading) useAuthStore.getState().checkAuth();
   }, []);
-  
   if (isLoading) return <div className="p-8">Cargando...</div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <>{children}</>;
@@ -37,70 +33,14 @@ function App() {
         <Route path="/catalog/:id" element={<ListingDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/listings/create" 
-          element={
-            <ProtectedRoute>
-              <CreateListing />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/moderation" 
-          element={
-            <ProtectedRoute>
-              <ModerationPanel />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/offers" 
-          element={
-            <ProtectedRoute>
-              <Offers />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/contracts" 
-          element={
-            <ProtectedRoute>
-              <Contracts />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/orders" 
-          element={
-            <ProtectedRoute>
-              <Orders />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/payments" 
-          element={
-            <ProtectedRoute>
-              <Payments />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/disputes" 
-          element={
-            <ProtectedRoute>
-              <Disputes />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/listings/create" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
+        <Route path="/listings/edit/:id" element={<ProtectedRoute><EditListing /></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+        <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+        <Route path="/offers" element={<ProtectedRoute><Offers /></ProtectedRoute>} />
+        <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+        <Route path="/moderation" element={<ProtectedRoute><ModerationPanel /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -14,6 +14,12 @@ export interface CreateListingDto {
   attributes?: any;
   photos?: string[];
   technicalSheetUrl?: string;
+  originDepartment?: string;
+  originCity?: string;
+  logisticsType?: string;
+  shelfLifeDays?: number;
+  deliveryModes?: string[];
+  allowedDepartments?: string[];
 }
 
 export const createListing = async (data: CreateListingDto) => {
@@ -30,6 +36,12 @@ export const createListing = async (data: CreateListingDto) => {
       attributes: data.attributes,
       photos: data.photos || [],
       technicalSheetUrl: data.technicalSheetUrl,
+      originDepartment: data.originDepartment,
+      originCity: data.originCity,
+      logisticsType: data.logisticsType || 'ambient',
+      shelfLifeDays: data.shelfLifeDays,
+      deliveryModes: data.deliveryModes || ['pickup'],
+      allowedDepartments: data.allowedDepartments || [],
       status: 'draft',
     },
   });
@@ -47,7 +59,7 @@ export const getListingById = async (id: string) => {
   return prisma.listing.findUnique({
     where: { id },
     include: { 
-      organization: { select: { id: true, name: true, kybStatus: true } },
+      organization: { select: { id: true, name: true, kybStatus: true, department: true, city: true, country: true } },
       category: true 
     },
   });
@@ -64,7 +76,7 @@ export const publishListing = async (id: string, orgId: string) => {
 
   return prisma.listing.update({
     where: { id },
-    data: { status: 'pending_review' },
+    data: { status: 'active' },
   });
 };
 

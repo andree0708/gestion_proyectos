@@ -14,6 +14,9 @@ export interface RegisterDto {
   taxId: string;
   country: string;
   sector: string;
+  department: string;
+  city: string;
+  address?: string;
   email: string;
   password: string;
   fullName: string;

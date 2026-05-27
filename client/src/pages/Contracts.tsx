@@ -55,11 +55,11 @@ export default function Contracts() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-purple-50">
+      <header className="bg-gradient-to-r from-rose-400 via-pink-400 to-purple-500 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-2xl font-bold">SubPro Exchange</Link>
+            <Link to="/" className="text-2xl font-light">🌸 SubPro</Link>
             <nav className="hidden md:flex gap-4 ml-8">
               <Link to="/dashboard" className="hover:text-white/80 transition">Dashboard</Link>
               <Link to="/offers" className="hover:text-white/80 transition">Ofertas</Link>

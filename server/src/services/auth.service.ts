@@ -23,7 +23,10 @@ export const register = async (data: RegisterDto) => {
       taxId: data.taxId,
       country: data.country,
       sector: data.sector,
-      kybStatus: 'pending',
+      department: data.department,
+      city: data.city,
+      address: data.address,
+      kybStatus: 'approved',
     },
   });
 

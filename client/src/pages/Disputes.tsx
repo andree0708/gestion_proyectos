@@ -26,6 +26,8 @@ export default function Disputes() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ orderId: '', reason: '', description: '' });
+  const [evidenceForm, setEvidenceForm] = useState({ disputeId: '', type: 'document', description: '', fileUrl: '' });
+  const [adminFilter, setAdminFilter] = useState('');
 
   const isAdmin = user?.role === 'admin';
 
@@ -35,7 +37,7 @@ export default function Disputes() {
 
   const loadData = async () => {
     try {
-      const res = isAdmin ? await disputeApi.getAll() : await disputeApi.getMy();
+      const res = isAdmin ? await disputeApi.getAll(adminFilter || undefined) : await disputeApi.getMy();
       setDisputes(res.data);
     } catch (err) {
       console.error(err);
@@ -53,6 +55,21 @@ export default function Disputes() {
       loadData();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Error al crear disputa');
+    }
+  };
+
+  const handleAddEvidence = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await disputeApi.addEvidence(evidenceForm.disputeId, {
+        type: evidenceForm.type,
+        description: evidenceForm.description,
+        fileUrl: evidenceForm.fileUrl,
+      });
+      setEvidenceForm({ disputeId: '', type: 'document', description: '', fileUrl: '' });
+      loadData();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Error al subir evidencia');
     }
   };
 
@@ -88,11 +105,11 @@ export default function Disputes() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-purple-50">
+      <header className="bg-gradient-to-r from-rose-400 via-pink-400 to-purple-500 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-2xl font-bold">SubPro Exchange</Link>
+            <Link to="/" className="text-2xl font-light">🌸 SubPro</Link>
             <nav className="hidden md:flex gap-4 ml-8">
               <Link to="/dashboard" className="hover:text-white/80">Dashboard</Link>
               <Link to="/payments" className="hover:text-white/80">Pagos</Link>
@@ -109,11 +126,35 @@ export default function Disputes() {
             <h1 className="text-2xl font-bold text-gray-800">Centro de Disputas</h1>
             <p className="text-gray-500">{isAdmin ? 'Administra todas las disputas' : 'Gestiona tus disputas'}</p>
           </div>
-          {!isAdmin && (
-            <button onClick={() => setShowForm(!showForm)} className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-              Abrir disputa
-            </button>
-          )}
+          <div className="flex gap-2">
+            {isAdmin && (
+              <select value={adminFilter} onChange={e => { setAdminFilter(e.target.value); setLoading(true); disputeApi.getAll(e.target.value || undefined).then(r => { setDisputes(r.data); setLoading(false); }); }} className="border rounded px-3 py-2 text-sm">
+                <option value="">Todas</option>
+                <option value="open">Abiertas</option>
+                <option value="resolved">Resueltas</option>
+              </select>
+            )}
+            {!isAdmin && (
+              <button onClick={() => setShowForm(!showForm)} className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                Abrir disputa
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="card mb-8 p-4">
+          <h3 className="font-semibold mb-3">Agregar evidencia a disputa</h3>
+          <form onSubmit={handleAddEvidence} className="grid grid-cols-2 gap-3 text-sm">
+            <input value={evidenceForm.disputeId} onChange={e => setEvidenceForm({ ...evidenceForm, disputeId: e.target.value })} placeholder="ID disputa" className="border rounded p-2" required />
+            <select value={evidenceForm.type} onChange={e => setEvidenceForm({ ...evidenceForm, type: e.target.value })} className="border rounded p-2">
+              <option value="document">Documento</option>
+              <option value="photo">Foto</option>
+              <option value="comment">Comentario</option>
+            </select>
+            <input value={evidenceForm.fileUrl} onChange={e => setEvidenceForm({ ...evidenceForm, fileUrl: e.target.value })} placeholder="URL archivo (opcional)" className="border rounded p-2 col-span-2" />
+            <textarea value={evidenceForm.description} onChange={e => setEvidenceForm({ ...evidenceForm, description: e.target.value })} placeholder="Descripción / comentario" className="border rounded p-2 col-span-2" rows={2} />
+            <button type="submit" className="bg-gray-700 text-white py-2 rounded col-span-2">Subir evidencia</button>
+          </form>
         </div>
 
         {showForm && (
@@ -179,8 +220,13 @@ export default function Disputes() {
                   <p className="text-sm mt-1"><span className="font-medium">Descripción:</span> {dispute.description}</p>
                 </div>
                 {dispute.evidences?.length > 0 && (
-                  <div className="text-sm text-gray-500">
-                    <span className="font-medium">Evidencia:</span> {dispute.evidences.length} archivo(s) enviado(s)
+                  <div className="mt-3 space-y-2">
+                    <p className="text-sm font-medium">Evidencias ({dispute.evidences.length})</p>
+                    {dispute.evidences.map((ev: any, i: number) => (
+                      <div key={i} className="text-xs bg-white p-2 rounded border">
+                        <span className="font-medium">{ev.type}:</span> {ev.description || ev.fileUrl || '—'}
+                      </div>
+                    ))}
                   </div>
                 )}
                 {dispute.resolution && (

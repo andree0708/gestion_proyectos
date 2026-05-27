@@ -49,7 +49,8 @@ export const getMyDisputes = async (req: Request, res: Response) => {
 
 export const getAllDisputes = async (req: Request, res: Response) => {
   try {
-    const disputes = await disputeService.getAllDisputes();
+    const status = req.query.status as string | undefined;
+    const disputes = await disputeService.getAllDisputes(status);
     res.json(disputes);
   } catch (error: any) {
     res.status(500).json({ error: error.message });

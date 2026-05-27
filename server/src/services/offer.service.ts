@@ -1,4 +1,6 @@
 import prisma from '../config/db.js';
+import crypto from 'crypto';
+import { canDeliverTo } from '../utils/logistics.js';
 
 export interface CreateOfferDto {
   listingId: string;
@@ -20,6 +22,20 @@ export const createOffer = async (data: CreateOfferDto) => {
 
   if (listing.orgId === data.buyerOrgId) {
     throw new Error('No puedes ofrecer a tu propio listado');
+  }
+
+  if (Number(listing.quantity) < data.quantity) {
+    throw new Error('Stock insuficiente para esta cantidad');
+  }
+
+  const buyer = await prisma.organization.findUnique({
+    where: { id: data.buyerOrgId },
+    select: { department: true },
+  });
+
+  const deliveryCheck = canDeliverTo(listing, buyer?.department);
+  if (!deliveryCheck.ok) {
+    throw new Error(deliveryCheck.reason || 'Entrega no viable a tu departamento');
   }
 
   return prisma.offer.create({
@@ -54,8 +70,19 @@ export const getOffersForBuyer = async (buyerOrgId: string) => {
   return prisma.offer.findMany({
     where: { buyerOrgId },
     include: {
-      listing: { include: { category: true } },
+      listing: { include: { category: true, organization: { select: { name: true, country: true } } } },
       order: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+};
+
+export const getOffersForSeller = async (sellerOrgId: string) => {
+  return prisma.offer.findMany({
+    where: { listing: { orgId: sellerOrgId } },
+    include: {
+      listing: { include: { category: true } },
+      buyer: { select: { id: true, name: true, country: true, kybStatus: true } },
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -88,9 +115,15 @@ export const acceptOffer = async (id: string, orgId: string) => {
     throw new Error('La oferta ya no está disponible');
   }
 
+  if (Number(offer.listing.quantity) < Number(offer.quantity)) {
+    throw new Error('Stock insuficiente para aceptar esta oferta');
+  }
+
   const totalAmount = offer.quantity * Number(offer.unitPrice);
   const platformFee = totalAmount * 0.03;
   const netAmount = totalAmount - platformFee;
+
+  const newStock = Number(offer.listing.quantity) - Number(offer.quantity);
 
   const [updatedOffer, order] = await prisma.$transaction([
     prisma.offer.update({
@@ -108,6 +141,13 @@ export const acceptOffer = async (id: string, orgId: string) => {
         netAmount,
       },
     }),
+    prisma.listing.update({
+      where: { id: offer.listingId },
+      data: {
+        quantity: newStock,
+        ...(newStock <= 0 && { status: 'active' }),
+      },
+    }),
   ]);
 
   await prisma.offer.updateMany({
@@ -117,6 +157,29 @@ export const acceptOffer = async (id: string, orgId: string) => {
       status: 'pending',
     },
     data: { status: 'rejected' },
+  });
+
+  const contentHash = crypto.createHash('sha256')
+    .update(JSON.stringify({ orderId: order.id, totalAmount, platformFee, netAmount }))
+    .digest('hex');
+
+  await prisma.contract.create({
+    data: { orderId: order.id, contentHash, status: 'pending_signature' },
+  });
+
+  await prisma.payment.create({
+    data: { orderId: order.id, amount: totalAmount, status: 'pending', currency: 'COP' },
+  });
+
+  await prisma.conversation.create({ data: { orderId: order.id } });
+
+  await prisma.shipment.create({
+    data: {
+      orderId: order.id,
+      carrierOrgId: orgId,
+      status: 'pending_pickup',
+      deliveryTerms: 'Entrega en 7 días hábiles tras confirmación de pago',
+    },
   });
 
   return { offer: updatedOffer, order };

@@ -6,6 +6,7 @@ const router = Router();
 
 router.post('/', authenticate, offerController.createOffer);
 router.get('/buyer', authenticate, offerController.getOffersForBuyer);
+router.get('/seller', authenticate, offerController.getOffersForSeller);
 router.get('/:id', authenticate, offerController.getOfferById);
 router.get('/listing/:listingId', authenticate, offerController.getOffersForListing);
 router.put('/:id/accept', authenticate, offerController.acceptOffer);

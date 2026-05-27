@@ -43,7 +43,10 @@ model Organization {
   taxId       String   @map("tax_id")
   country     String
   sector      String
-  kybStatus   KybStatus @default(pending) @map("kyb_status")
+  department  String?
+  city        String?
+  address     String?
+  kybStatus   KybStatus @default(approved) @map("kyb_status")
   plan        Plan     @default(free)
   kybDocs     Json?    @map("kyb_docs")
   createdAt   DateTime @default(now()) @map("created_at")
@@ -55,6 +58,7 @@ model Organization {
   ordersAsSeller Order[] @relation("SellerOrders")
   ordersAsBuyer  Order[] @relation("BuyerOrders")
   shipments Shipment[] @relation("CarrierShipments")
+  bankAccount BankAccount?
 
   @@map("organizations")
 }
@@ -104,6 +108,12 @@ model Listing {
   status          ListingStatus @default(draft)
   photos          String[]
   technicalSheetUrl String?     @map("technical_sheet_url")
+  originDepartment  String?     @map("origin_department")
+  originCity        String?     @map("origin_city")
+  logisticsType     String?     @map("logistics_type")
+  shelfLifeDays     Int?        @map("shelf_life_days")
+  deliveryModes     String[]    @default([]) @map("delivery_modes")
+  allowedDepartments String[]   @default([]) @map("allowed_departments")
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
@@ -155,6 +165,7 @@ model Order {
   payment    Payment?
   contract   Contract?
   conversation Conversation?
+  dispute    Dispute?
 
   @@map("orders")
 }
@@ -165,6 +176,12 @@ model Shipment {
   carrierOrgId    String   @map("carrier_org_id")
   trackingCode    String?  @map("tracking_code")
   status          String   @default("pending")
+  weightKg        Decimal? @map("weight_kg") @db.Decimal(12, 2)
+  volumeM3        Decimal? @map("volume_m3") @db.Decimal(12, 2)
+  pickupAddress   String?  @map("pickup_address")
+  deliveryAddress String?  @map("delivery_address")
+  shippingCost    Decimal? @map("shipping_cost") @db.Decimal(12, 2)
+  deliveryTerms   String?  @map("delivery_terms")
   estimatedDelivery DateTime? @map("estimated_delivery")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
@@ -199,9 +216,23 @@ model Payment {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
-  order Order @relation(fields: [orderId], references: [id])
+  order   Order    @relation(fields: [orderId], references: [id])
+  invoice Invoice?
 
   @@map("payments")
+}
+
+model Invoice {
+  id            String   @id @default(uuid())
+  paymentId     String   @unique @map("payment_id")
+  invoiceNumber String   @map("invoice_number")
+  amount        Decimal  @db.Decimal(12, 2)
+  pdfUrl        String?  @map("pdf_url")
+  issuedAt      DateTime @default(now()) @map("issued_at")
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+
+  @@map("invoices")
 }
 
 model Contract {
@@ -295,7 +326,7 @@ model Alert {
 
 model Dispute {
   id            String   @id @default(uuid())
-  orderId       String   @map("order_id")
+  orderId       String   @unique @map("order_id")
   openedByOrgId String   @map("opened_by_org_id")
   reason        String
   description   String

@@ -33,6 +33,16 @@ export const getOffersForBuyer = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const getOffersForSeller = async (req: AuthRequest, res: Response) => {
+  try {
+    const sellerOrgId = req.user!.orgId;
+    const result = await offerService.getOffersForSeller(sellerOrgId);
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const getOfferById = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;

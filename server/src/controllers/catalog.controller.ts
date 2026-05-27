@@ -11,6 +11,7 @@ export const searchListings = async (req: Request, res: Response) => {
       minQuantity: req.query.minQuantity ? parseFloat(req.query.minQuantity as string) : undefined,
       unit: req.query.unit as string,
       country: req.query.country as string,
+      department: req.query.department as string,
       page: req.query.page ? parseInt(req.query.page as string) : 1,
       limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
     };

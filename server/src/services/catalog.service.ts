@@ -8,46 +8,45 @@ export interface SearchQuery {
   minQuantity?: number;
   unit?: string;
   country?: string;
+  department?: string;
   page?: number;
   limit?: number;
 }
 
 export const searchListings = async (query: SearchQuery) => {
-  const { search, categoryId, minPrice, maxPrice, minQuantity, unit, country, page = 1, limit = 20 } = query;
+  const { search, categoryId, minPrice, maxPrice, minQuantity, unit, country, department, page = 1, limit = 20 } = query;
 
-  const where: any = {
-    status: 'active',
-  };
+  const where: any = { status: 'active' };
+  const andFilters: any[] = [];
 
   if (search) {
-    where.OR = [
-      { title: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-    ];
+    andFilters.push({
+      OR: [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ],
+    });
   }
 
-  if (categoryId) {
-    where.categoryId = categoryId;
+  if (categoryId) where.categoryId = categoryId;
+  if (minPrice !== undefined) where.priceAmount = { ...where.priceAmount, gte: minPrice };
+  if (maxPrice !== undefined) where.priceAmount = { ...where.priceAmount, lte: maxPrice };
+  if (minQuantity !== undefined) where.quantity = { gte: minQuantity };
+  if (unit) where.unit = unit;
+  if (country) where.organization = { country: { contains: country, mode: 'insensitive' } };
+
+  if (department) {
+    andFilters.push({
+      OR: [
+        { allowedDepartments: { has: department } },
+        { AND: [{ allowedDepartments: { equals: [] } }, { originDepartment: department }] },
+        { AND: [{ logisticsType: 'ambient' }, { allowedDepartments: { equals: [] } }] },
+      ],
+    });
   }
 
-  if (minPrice !== undefined) {
-    where.priceAmount = { ...where.priceAmount, gte: minPrice };
-  }
-
-  if (maxPrice !== undefined) {
-    where.priceAmount = { ...where.priceAmount, lte: maxPrice };
-  }
-
-  if (minQuantity !== undefined) {
-    where.quantity = { gte: minQuantity };
-  }
-
-  if (unit) {
-    where.unit = unit;
-  }
-
-  if (country) {
-    where.organization = { country: { contains: country, mode: 'insensitive' } };
+  if (andFilters.length > 0) {
+    where.AND = andFilters;
   }
 
   const [total, listings] = await Promise.all([
@@ -56,7 +55,7 @@ export const searchListings = async (query: SearchQuery) => {
       where,
       include: {
         category: true,
-        organization: { select: { id: true, name: true, kybStatus: true, country: true } },
+        organization: { select: { id: true, name: true, kybStatus: true, country: true, department: true, city: true } },
       },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * limit,

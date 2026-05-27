@@ -15,6 +15,9 @@ import orderRoutes from './routes/order.routes.js';
 import shipmentRoutes from './routes/shipment.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import disputeRoutes from './routes/dispute.routes.js';
+import reviewRoutes from './routes/review.routes.js';
+import messageRoutes from './routes/message.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,6 +49,18 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/shipments', shipmentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/disputes', disputeRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
+// Serve client build in production
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.join(__dirname, '../../client/dist');
+  app.use(express.static(clientDist));
+  app.get('*', (_req: Request, res: Response) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
+}
 
 app.use((err: Error, _req: Request, res: Response) => {
   console.error(err.stack);

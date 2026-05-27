@@ -45,15 +45,17 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="text-3xl font-bold text-emerald-700">SubPro Exchange</Link>
-          <p className="text-gray-600 mt-2">Conecta generadores con compradores</p>
+          <Link to="/" className="text-4xl font-light text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-purple-500">
+            🌸 SubPro
+          </Link>
+          <p className="text-gray-500 mt-2">Subproductos Alimenticios</p>
         </div>
         
-        <div className="card">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Iniciar Sesión</h2>
+        <div className="card border-0 shadow-2xl">
+          <h2 className="text-2xl font-light text-gray-800 mb-6">Bienvenida</h2>
           
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
@@ -89,16 +91,16 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary py-3 text-lg"
+              className="w-full bg-gradient-to-r from-rose-500 to-purple-500 text-white py-3 rounded-full font-medium hover:from-rose-600 hover:to-purple-600 transition shadow-lg"
             >
-              {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+              {loading ? 'Entrando...' : 'Iniciar Sesión'}
             </button>
           </form>
           
-          <p className="mt-6 text-center text-gray-600">
+          <p className="mt-6 text-center text-gray-500">
             ¿No tienes cuenta?{' '}
-            <Link to="/register" className="text-emerald-600 font-medium hover:underline">
-              Regístrate gratis
+            <Link to="/register" className="text-rose-500 font-medium hover:underline">
+              Crear cuenta
             </Link>
           </p>
         </div>

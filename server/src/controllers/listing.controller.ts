@@ -101,14 +101,12 @@ export const deleteListing = async (req: AuthRequest, res: Response) => {
 
 export const uploadPhotos = async (req: AuthRequest, res: Response) => {
   try {
-    upload.array('photos', 5)(req as any, res as any, (err: any) => {
-      if (err) {
-        return res.status(400).json({ error: err.message });
-      }
-      const files = req.files as Express.Multer.File[];
-      const urls = files.map(f => `/uploads/${f.filename}`);
-      res.json({ urls });
-    });
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'No se subió ninguna foto' });
+    }
+    const urls = files.map(f => `/uploads/${f.filename}`);
+    res.json({ urls });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -116,16 +114,11 @@ export const uploadPhotos = async (req: AuthRequest, res: Response) => {
 
 export const uploadTechnicalSheet = async (req: AuthRequest, res: Response) => {
   try {
-    upload.single('file')(req as any, res as any, (err: any) => {
-      if (err) {
-        return res.status(400).json({ error: err.message });
-      }
-      const file = req.file;
-      if (!file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-      }
-      res.json({ url: `/uploads/${file.filename}` });
-    });
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ error: 'No se subió ningún archivo' });
+    }
+    res.json({ url: `/uploads/${file.filename}` });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

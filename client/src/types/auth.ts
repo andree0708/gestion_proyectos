@@ -13,6 +13,9 @@ export interface Organization {
   taxId: string;
   country: string;
   sector: string;
+  department?: string;
+  city?: string;
+  address?: string;
   kybStatus: 'pending' | 'approved' | 'rejected';
   plan: 'free' | 'premium';
 }
@@ -34,6 +37,9 @@ export interface RegisterData {
   taxId: string;
   country: string;
   sector: string;
+  department: string;
+  city: string;
+  address?: string;
   email: string;
   password: string;
   fullName: string;

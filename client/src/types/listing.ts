@@ -12,6 +12,12 @@ export interface Listing {
   status: 'draft' | 'pending_review' | 'active' | 'rejected';
   photos: string[];
   technicalSheetUrl: string | null;
+  originDepartment?: string | null;
+  originCity?: string | null;
+  logisticsType?: string | null;
+  shelfLifeDays?: number | null;
+  deliveryModes?: string[];
+  allowedDepartments?: string[];
   createdAt: string;
   category?: Category;
   organization?: {
@@ -19,6 +25,8 @@ export interface Listing {
     name: string;
     kybStatus: string;
     country?: string;
+    department?: string;
+    city?: string;
   };
 }
 
@@ -42,4 +50,10 @@ export interface CreateListingDto {
   attributes?: any;
   photos?: string[];
   technicalSheetUrl?: string;
+  originDepartment?: string;
+  originCity?: string;
+  logisticsType?: string;
+  shelfLifeDays?: number;
+  deliveryModes?: string[];
+  allowedDepartments?: string[];
 }

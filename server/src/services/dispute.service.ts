@@ -83,12 +83,12 @@ export const getMyDisputes = async (orgId: string) => {
   });
 };
 
-export const getAllDisputes = async () => {
+export const getAllDisputes = async (status?: string) => {
   return prisma.dispute.findMany({
-    where: { status: 'open' },
+    where: status ? { status } : undefined,
     include: {
       order: { include: { offer: { include: { listing: true } }, buyer: true, seller: true } },
-      evidences: true,
+      evidences: { orderBy: { createdAt: 'desc' } },
     },
     orderBy: { createdAt: 'desc' },
   });

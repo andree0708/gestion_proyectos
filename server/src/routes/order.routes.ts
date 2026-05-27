@@ -12,7 +12,11 @@ router.get('/my', authenticate, async (req, res) => {
         OR: [{ sellerOrgId: orgId }, { buyerOrgId: orgId }],
       },
       include: {
-        offer: { include: { listing: true } },
+        offer: { include: { listing: true, buyer: { select: { id: true, name: true } } } },
+        contract: { include: { signatures: true } },
+        payment: { include: { invoice: true } },
+        shipment: { include: { events: { orderBy: { timestamp: 'desc' }, take: 5 } } },
+        dispute: true,
       },
       orderBy: { createdAt: 'desc' },
     });
